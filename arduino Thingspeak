@@ -74,7 +74,7 @@ void sendTeperatureTS(float temp)
    client.print(postStr.length());
    client.print("\n\n");
    client.print(postStr);
-   delay(1000);
+   delay(60000);
    
    }//end if
    sent++;
