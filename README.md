@@ -3,8 +3,6 @@
 
 # 2nd
 
-#### send data to server and thingspeak (arduino code)
+>>#### send data to server and thingspeak (arduino code)
 
-# 3nd
-
-#### node js code (get data) 
+>> #### node js code (get data) 
