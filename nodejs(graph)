@@ -1,0 +1,62 @@
+
+var express = require('express');
+var app = express();
+var moment = require('moment');
+var now = moment();
+fs = require('fs');
+mysql = require('mysql');
+var connection = mysql.createConnection({
+    host: 'localhost',
+    user: 'me',
+    password: 'mypassword',
+    database: 'mydb'
+})
+connection.connect();
+
+app.get("/graph", function(req, res) {
+  console.log("graph=" + req.query);
+  var html = fs.readFile('./graph.html',function(err,html){
+  var qstr = 'select * from temperature order by time';
+  html = " "+html
+  console.log('read end');
+  connection.query(qstr, function(err, rows, cols) {
+    if (err) {
+      throw err;
+      res.send('query error: '+ qstr);
+      return;
+    }
+    var data = "";
+    var comma = "";
+    for ( var i = 0 ; i < rows.length ; i++){
+         r = rows[i];
+         now = moment(rows[i].time).add(9,'hours').add(-1,'month');
+         data += comma + "[new Date(" + now.format('YYYY,MM,DD,HH,mm') + ",)," + r.temperature + "]";
+    comma = ",";
+    }
+    var header = "data.addColumn('date', 'Date/Time');"
+    header += "data.addColumn('number', 'Temperature');"
+    html = html.replace("<%HEADER%>",header);
+    html = html.replace("<%DATA%>",data);
+    res.writeHeader(200, {"Content-Type": "text/html"});
+    res.write(html);
+    res.end();
+/*
+     html = html.replace(/\{/g,"");
+     html = html.replace(/\}/g,"");
+     html = html.replace(/\"/g,"");
+     html = html.replace(/\-/g,"");
+     html = html.replace(/time:/g,"");
+     html = html.replace(/.000Z/g,"");
+     html = html.replace(/temperature:/g,"");
+     html = html.replace(/T/g,",");
+*/
+    });
+  });
+
+});
+
+var server = app.listen(8083, function () {
+  var host = server.address().address
+  var port = server.address().port
+  console.log('listening at http://%s:%s', host, port)
+});
